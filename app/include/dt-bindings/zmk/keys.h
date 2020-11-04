@@ -3,8 +3,9 @@
  *
  * SPDX-License-Identifier: MIT
  */
-
 #pragma once
+
+#include <dt-bindings/zmk/modifiers.h>
 
 #define USAGE_KEYPAD 0x07
 #define USAGE_CONSUMER 0x0C
@@ -143,12 +144,3 @@
 #define M_MUTE 0xE2
 #define M_VOLU 0xE9
 #define M_VOLD 0xEA
-
-#define MOD_LCTL (1 << 0x00)
-#define MOD_LSFT (1 << 0x01)
-#define MOD_LALT (1 << 0x02)
-#define MOD_LGUI (1 << 0x03)
-#define MOD_RCTL (1 << 0x04)
-#define MOD_RSFT (1 << 0x05)
-#define MOD_RALT (1 << 0x06)
-#define MOD_RGUI (1 << 0x07)
