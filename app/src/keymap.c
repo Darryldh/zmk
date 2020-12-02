@@ -18,8 +18,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/events/position-state-changed.h>
 #include <zmk/events/sensor-event.h>
 
-static u32_t zmk_keymap_layer_state = 0;
-static u8_t zmk_keymap_layer_default = 0;
+static uint32_t zmk_keymap_layer_state = 0;
+static uint8_t zmk_keymap_layer_default = 0;
 
 #define DT_DRV_COMPAT zmk_keymap
 
@@ -63,7 +63,7 @@ static u8_t zmk_keymap_layer_default = 0;
 // When a behavior handles a key position "down" event, we record the layer state
 // here so that even if that layer is deactivated before the "up", event, we
 // still send the release event to the behavior in that layer also.
-static u32_t zmk_keymap_active_behavior_layer[ZMK_KEYMAP_LEN];
+static uint32_t zmk_keymap_active_behavior_layer[ZMK_KEYMAP_LEN];
 
 static struct zmk_behavior_binding zmk_keymap[ZMK_KEYMAP_LAYERS_LEN][ZMK_KEYMAP_LEN] = {
     DT_INST_FOREACH_CHILD(0, TRANSFORMED_LAYER)};
@@ -83,15 +83,15 @@ static struct zmk_behavior_binding zmk_sensor_keymap[ZMK_KEYMAP_LAYERS_LEN]
     WRITE_BIT(zmk_keymap_layer_state, layer, state);                                               \
     return 0;
 
-bool zmk_keymap_layer_active(u8_t layer) {
+bool zmk_keymap_layer_active(uint8_t layer) {
     return (zmk_keymap_layer_state & (BIT(layer))) == (BIT(layer));
 };
 
-int zmk_keymap_layer_activate(u8_t layer) { SET_LAYER_STATE(layer, true); };
+int zmk_keymap_layer_activate(uint8_t layer) { SET_LAYER_STATE(layer, true); };
 
-int zmk_keymap_layer_deactivate(u8_t layer) { SET_LAYER_STATE(layer, false); };
+int zmk_keymap_layer_deactivate(uint8_t layer) { SET_LAYER_STATE(layer, false); };
 
-int zmk_keymap_layer_toggle(u8_t layer) {
+int zmk_keymap_layer_toggle(uint8_t layer) {
     if (zmk_keymap_layer_active(layer)) {
         return zmk_keymap_layer_deactivate(layer);
     }
@@ -99,11 +99,11 @@ int zmk_keymap_layer_toggle(u8_t layer) {
     return zmk_keymap_layer_activate(layer);
 };
 
-bool is_active_layer(u8_t layer, u32_t layer_state) {
+bool is_active_layer(uint8_t layer, uint32_t layer_state) {
     return (layer_state & BIT(layer)) == BIT(layer) || layer == zmk_keymap_layer_default;
 }
 
-int zmk_keymap_apply_position_state(int layer, u32_t position, bool pressed, s64_t timestamp) {
+int zmk_keymap_apply_position_state(int layer, uint32_t position, bool pressed, int64_t timestamp) {
     struct zmk_behavior_binding *binding = &zmk_keymap[layer][position];
     struct device *behavior;
     struct zmk_behavior_binding_event event = {
@@ -129,7 +129,7 @@ int zmk_keymap_apply_position_state(int layer, u32_t position, bool pressed, s64
     }
 }
 
-int zmk_keymap_position_state_changed(u32_t position, bool pressed, s64_t timestamp) {
+int zmk_keymap_position_state_changed(uint32_t position, bool pressed, int64_t timestamp) {
     if (pressed) {
         zmk_keymap_active_behavior_layer[position] = zmk_keymap_layer_state;
     }
@@ -152,7 +152,7 @@ int zmk_keymap_position_state_changed(u32_t position, bool pressed, s64_t timest
 }
 
 #if ZMK_KEYMAP_HAS_SENSORS
-int zmk_keymap_sensor_triggered(u8_t sensor_number, struct device *sensor, s64_t timestamp) {
+int zmk_keymap_sensor_triggered(uint8_t sensor_number, struct device *sensor, int64_t timestamp) {
     for (int layer = ZMK_KEYMAP_LAYERS_LEN - 1; layer >= zmk_keymap_layer_default; layer--) {
         if (((zmk_keymap_layer_state & BIT(layer)) == BIT(layer) ||
              layer == zmk_keymap_layer_default) &&
