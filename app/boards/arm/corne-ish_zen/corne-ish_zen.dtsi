@@ -79,7 +79,6 @@
 	*/
 };
 
-
 &adc {
 	status = "okay";
 };
