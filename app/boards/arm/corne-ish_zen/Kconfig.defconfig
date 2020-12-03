@@ -1,0 +1,91 @@
+# Copyright (c) 2020 Darryl deHaan
+# SPDX-License-Identifier: MIT
+
+if BOARD_CORNEISH_ZEN_LEFT
+
+	config ZMK_KEYBOARD_NAME
+	default "Corne-ish Zen"
+
+endif # BOARD_CORNEISH_ZEN_LEFT
+
+if BOARD_CORNEISH_ZEN_RIGHT
+
+	config ZMK_KEYBOARD_NAME
+	default "Corne-ish Zen (right)"
+
+endif # BOARD_CORNEISH_ZEN_RIGHT
+
+
+if BOARD_CORNEISH_ZEN_LEFT || BOARD_CORNEISH_ZEN_RIGHT
+
+config BOARD
+	default "corne-ish_zen"
+
+config ZMK_SPLIT
+	default y
+
+#config SERIAL
+#	bool
+#	default y
+#	depends on USB
+
+#config I2C
+#	default y
+
+#config SPI
+#    bool
+#    default y
+
+config BT_CTLR
+	default BT
+
+config ZMK_BLE
+	default y
+
+config ZMK_USB
+	default y
+
+config ZMK_BATTERY_VOLTAGE_DIVIDER  # is this correct?
+	default n
+
+if USB
+
+config USB_NRFX
+	default y
+
+config USB_DEVICE_STACK
+	default y
+
+endif # USB
+
+if ZMK_DISPLAY
+
+	# coming soon
+
+endif # ZMK_DISPLAY
+
+if LVGL
+
+config LVGL_HOR_RES
+	default 128
+
+config LVGL_VER_RES
+	default 80
+
+config LVGL_VDB_SIZE
+	default 64
+
+config LVGL_DPI
+	default 145
+
+config LVGL_BITS_PER_PIXEL
+	default 1
+
+choice LVGL_COLOR_DEPTH
+	default LVGL_COLOR_DEPTH_1
+endchoice
+
+endif # LVGL
+
+endif # BOARD_CORNEISH_ZEN_LEFT || BOARD_CORNEISH_ZEN_RIGHT
+
