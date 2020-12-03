@@ -1,4 +1,4 @@
-FROM innovaker/zmk-dev-arm:2.3
+FROM innovaker/zmk-dev-arm:2.4
 
 COPY .bashrc tmp
 RUN mv /tmp/.bashrc ~/.bashrc
