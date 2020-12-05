@@ -45,7 +45,7 @@ module.exports = {
             },
             {
               label: "Development",
-              to: "docs/dev-setup/",
+              to: "docs/development/setup/",
             },
           ],
         },
@@ -112,7 +112,10 @@ module.exports = {
           editUrl: "https://github.com/zmkfirmware/zmk/edit/main/docs/",
         },
         theme: {
-          customCss: require.resolve("./src/css/custom.css"),
+          customCss: [
+            require.resolve("./src/css/custom.css"),
+            require.resolve("./src/css/codes.css"),
+          ],
         },
       },
     ],

@@ -2,14 +2,15 @@ manifest:
   remotes:
     - name: zephyrproject-rtos
       url-base: https://github.com/zephyrproject-rtos
-    - name: petejohanson
-      url-base: https://github.com/petejohanson
+    - name: zmkfirmware
+      url-base: https://github.com/zmkfirmware
     - name: microsoft
       url-base: https://github.com/microsoft
   projects:
     - name: zephyr
-      remote: petejohanson
+      remote: zmkfirmware
       revision: zmk-v2.3.0-with-fixes
+      clone-depth: 1
       import:
         # TODO: Rename once upstream offers option like `exclude` or `denylist`
         name-blacklist:
@@ -36,5 +37,6 @@ manifest:
     - name: uf2
       remote: microsoft
       path: tools/uf2
+      clone-depth: 1
   self:
-    path: zmk
+    west-commands: scripts/west-commands.yml

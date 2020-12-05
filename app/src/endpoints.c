@@ -10,6 +10,7 @@
 #include <zmk/ble.h>
 #include <zmk/endpoints.h>
 #include <zmk/hid.h>
+#include <dt-bindings/zmk/hid_usage_pages.h>
 #include <zmk/usb.h>
 #include <zmk/hog.h>
 #include <zmk/event-manager.h>
@@ -46,19 +47,21 @@ int zmk_endpoints_select(enum zmk_endpoint endpoint) {
     return 0;
 }
 
+enum zmk_endpoint zmk_endpoints_selected() { return current_endpoint; }
+
 int zmk_endpoints_toggle() {
     enum zmk_endpoint new_endpoint =
         (preferred_endpoint == ZMK_ENDPOINT_USB) ? ZMK_ENDPOINT_BLE : ZMK_ENDPOINT_USB;
     return zmk_endpoints_select(new_endpoint);
 }
 
-static int send_keypad_report() {
-    struct zmk_hid_keypad_report *keypad_report = zmk_hid_get_keypad_report();
+static int send_keyboard_report() {
+    struct zmk_hid_keyboard_report *keyboard_report = zmk_hid_get_keyboard_report();
 
     switch (current_endpoint) {
 #if IS_ENABLED(CONFIG_ZMK_USB)
     case ZMK_ENDPOINT_USB: {
-        int err = zmk_usb_hid_send_report((u8_t *)keypad_report, sizeof(*keypad_report));
+        int err = zmk_usb_hid_send_report((u8_t *)keyboard_report, sizeof(*keyboard_report));
         if (err) {
             LOG_ERR("FAILED TO SEND OVER USB: %d", err);
         }
@@ -68,7 +71,7 @@ static int send_keypad_report() {
 
 #if IS_ENABLED(CONFIG_ZMK_BLE)
     case ZMK_ENDPOINT_BLE: {
-        int err = zmk_hog_send_keypad_report(&keypad_report->body);
+        int err = zmk_hog_send_keyboard_report(&keyboard_report->body);
         if (err) {
             LOG_ERR("FAILED TO SEND OVER HOG: %d", err);
         }
@@ -116,9 +119,9 @@ int zmk_endpoints_send_report(u8_t usage_page) {
 
     LOG_DBG("usage page 0x%02X", usage_page);
     switch (usage_page) {
-    case USAGE_KEYPAD:
-        return send_keypad_report();
-    case USAGE_CONSUMER:
+    case HID_USAGE_KEY:
+        return send_keyboard_report();
+    case HID_USAGE_CONSUMER:
         return send_consumer_report();
     default:
         LOG_ERR("Unsupported usage page %d", usage_page);
@@ -206,11 +209,11 @@ static enum zmk_endpoint get_selected_endpoint() {
 }
 
 static void disconnect_current_endpoint() {
-    zmk_hid_keypad_clear();
+    zmk_hid_keyboard_clear();
     zmk_hid_consumer_clear();
 
-    zmk_endpoints_send_report(USAGE_KEYPAD);
-    zmk_endpoints_send_report(USAGE_CONSUMER);
+    zmk_endpoints_send_report(HID_USAGE_KEY);
+    zmk_endpoints_send_report(HID_USAGE_CONSUMER);
 }
 
 static void update_current_endpoint() {
