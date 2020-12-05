@@ -19,6 +19,7 @@
 		zephyr,flash = &flash0;
 		zmk,kscan = &kscan0;
 		zmk,matrix_transform = &default_transform;
+		zmk,display = &epd;
 	};
 
 	default_transform: keymap_transform_0 {
@@ -56,9 +57,12 @@
 	};
 
 
+	/* sensors {
+		compatible = "zmk,keymap-sensors";
+		sensors = <&left_encoder>;
+	};
 
-
-	/* is this needed? 
+	is this needed? 
 	ext-power {
 		compatible = "zmk,ext-power-generic";
 		label = "EXT_POWER";
@@ -74,6 +78,7 @@
 	};
 	*/
 };
+
 
 &adc {
 	status = "okay";
@@ -91,7 +96,6 @@
 	status = "okay";
 };
 
-
 &usbd {
 	status = "okay";
 };
@@ -101,9 +105,9 @@
 	status = "okay";
 	current-speed = <115200>;
 	tx-pin = <39>;
-	rx-pin = <34>;
-	rts-pin = <33>;
-	cts-pin = <12>;
+	rx-pin = <44>;
+	rts-pin = <34>;
+	cts-pin = <9>;
 };
 
 

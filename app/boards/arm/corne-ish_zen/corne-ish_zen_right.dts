@@ -41,10 +41,38 @@
 			};
 		};
 
-
 };
 
 &default_transform {
 		col-offset = <6>;
 	};
+
+&i2c0 {
+		status = "ok";
+		compatible = "nordic,nrf-twim";
+		sda-pin = <16>;
+		scl-pin = <13>;
+		clock-frequency = <100000>; 
+	};
+
+&spi0 {
+	status = "okay";
+	cs-gpios = <&gpio1 2 GPIO_ACTIVE_LOW>;
+
+	epd: il0323@0 {
+		compatible = "gooddisplay,il0323";
+		reg =  <0>;
+		label = "DISPLAY";
+		width = <80>;
+		height = <128>;
+		spi-max-frequency = <250000>;
+		dc-gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;
+		busy-gpios = <&gpio0 24 GPIO_ACTIVE_LOW>;
+		reset-gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>;
+		pwr = [03 00 26 26];
+		softstart = [17 17 17 17];
+		cdi = <0xd2>;
+		tcon = <0x22>;
+	};
+};
 
