@@ -24,13 +24,16 @@ config BOARD
 config ZMK_SPLIT
 	default y
 
-#config SERIAL
-#	bool
-#	default y
-#	depends on USB
+config I2C
+	bool
+	default y
 
-#config I2C
-#	default y
+menuconfig SENSOR
+    bool "Sensor Drivers"
+
+#onfig MAX17055
+#    bool "MAX17055 Fuel Gauge"
+#    depends on I2C && SENSOR
 
 #config SPI
 #    bool
@@ -45,8 +48,8 @@ config ZMK_BLE
 config ZMK_USB
 	default y
 
-config ZMK_BATTERY_VOLTAGE_DIVIDER  # is this correct?
-	default n
+#onfig ZMK_BATTERY_VOLTAGE_DIVIDER  # is this correct?
+#	default n
 
 if USB
 
@@ -60,20 +63,24 @@ endif # USB
 
 if ZMK_DISPLAY
 
-	# coming soon
+config SPI
+	default y
+
+config IL0323
+	default y
 
 endif # ZMK_DISPLAY
 
 if LVGL
 
 config LVGL_HOR_RES
-	default 128
-
-config LVGL_VER_RES
 	default 80
 
+config LVGL_VER_RES
+	default 128
+
 config LVGL_VDB_SIZE
-	default 64
+	default 100
 
 config LVGL_DPI
 	default 145
