@@ -26,17 +26,16 @@
 			, <&gpio1  9 GPIO_ACTIVE_HIGH>
 			, <&gpio0  7 GPIO_ACTIVE_HIGH>
 			, <&gpio0  5 GPIO_ACTIVE_HIGH>
-			;
-		
+			;	
 	};
 
 	leds {
-			compatible = "gpio-leds";
-			blue_led: led_0 {
-				gpios = <&gpio0 16 GPIO_ACTIVE_HIGH>;
-				label = "Blue LED";
-			};
+		compatible = "gpio-leds";
+		blue_led: led_0 {
+			gpios = <&gpio0 16 GPIO_ACTIVE_HIGH>;
+			label = "Blue LED";
 		};
+	};
 
 };
 
@@ -46,6 +45,16 @@
 	sda-pin = <6>;
 	scl-pin = <26>;
 	clock-frequency = <100000>; 
+
+	fuelgauge: max17055@49 {
+		compatible = "maxim,max17055";
+		label = "max17055";
+		reg = <0x49>;
+		design-voltage = <3860>;
+		desired-voltage = <4400>;
+		desired-charging-current = <2000>;
+		rsense-mohms = <10>;
+	};
 };
 
 &spi1  {
@@ -73,8 +82,7 @@
 	};
 };
 
-/*
+
 &bt_unpair_combo {
 	key-positions = <0 38>;
 };
-*/
