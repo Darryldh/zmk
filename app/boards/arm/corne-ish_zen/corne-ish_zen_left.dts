@@ -51,8 +51,8 @@
 	fuelgauge:max17055@36 {
 		status = "ok";
 		compatible = "maxim,max17055";
-		label = "max17055";
-		//label = "BATTERY";
+		//label = "max17055";
+		label = "BATTERY";
 		reg = <0x36>;
 		design-voltage = <3700>;
 		desired-voltage = <4100>;
