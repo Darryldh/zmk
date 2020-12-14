@@ -18,19 +18,19 @@
 
 LOG_MODULE_REGISTER(EC11, CONFIG_SENSOR_LOG_LEVEL);
 
-static int ec11_get_ab_state(struct device *dev) {
-    struct ec11_data *drv_data = dev->driver_data;
-    const struct ec11_config *drv_cfg = dev->config_info;
+static int ec11_get_ab_state(const struct device *dev) {
+    struct ec11_data *drv_data = dev->data;
+    const struct ec11_config *drv_cfg = dev->config;
 
     return (gpio_pin_get(drv_data->a, drv_cfg->a_pin) << 1) |
            gpio_pin_get(drv_data->b, drv_cfg->b_pin);
 }
 
-static int ec11_sample_fetch(struct device *dev, enum sensor_channel chan) {
-    struct ec11_data *drv_data = dev->driver_data;
-    const struct ec11_config *drv_cfg = dev->config_info;
-    u8_t val;
-    s8_t delta;
+static int ec11_sample_fetch(const struct device *dev, enum sensor_channel chan) {
+    struct ec11_data *drv_data = dev->data;
+    const struct ec11_config *drv_cfg = dev->config;
+    uint8_t val;
+    int8_t delta;
 
     __ASSERT_NO_MSG(chan == SENSOR_CHAN_ALL || chan == SENSOR_CHAN_ROTATION);
 
@@ -68,9 +68,9 @@ static int ec11_sample_fetch(struct device *dev, enum sensor_channel chan) {
     return 0;
 }
 
-static int ec11_channel_get(struct device *dev, enum sensor_channel chan,
+static int ec11_channel_get(const struct device *dev, enum sensor_channel chan,
                             struct sensor_value *val) {
-    struct ec11_data *drv_data = dev->driver_data;
+    struct ec11_data *drv_data = dev->data;
 
     if (chan != SENSOR_CHAN_ROTATION) {
         return -ENOTSUP;
@@ -90,9 +90,9 @@ static const struct sensor_driver_api ec11_driver_api = {
     .channel_get = ec11_channel_get,
 };
 
-int ec11_init(struct device *dev) {
-    struct ec11_data *drv_data = dev->driver_data;
-    const struct ec11_config *drv_cfg = dev->config_info;
+int ec11_init(const struct device *dev) {
+    struct ec11_data *drv_data = dev->data;
+    const struct ec11_config *drv_cfg = dev->config;
 
     LOG_DBG("A: %s %d B: %s %d resolution %d", drv_cfg->a_label, drv_cfg->a_pin, drv_cfg->b_label,
             drv_cfg->b_pin, drv_cfg->resolution);
