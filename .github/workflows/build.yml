@@ -62,8 +62,6 @@ jobs:
           - board: proton_c
             shield: clueboard_california
     steps:
-      # To use this repository's private action,
-      # you must check out the repository
       - name: Checkout
         uses: actions/checkout@v2
       - name: Cache west modules
@@ -87,8 +85,6 @@ jobs:
         run: west init -l app
       - name: West update
         run: west update
-      - name: West config Zephyr base
-        run: west config --global zephyr.base-prefer configfile
       - name: West Zephyr export
         run: west zephyr-export
       - name: Prepare variables

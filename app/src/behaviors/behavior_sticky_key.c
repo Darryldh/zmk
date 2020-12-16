@@ -21,12 +21,11 @@
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
-#if DT_NODE_EXISTS(DT_DRV_INST(0))
+#if DT_HAS_COMPAT_STATUS_OKAY(DT_DRV_COMPAT)
 
 #define ZMK_BHV_STICKY_KEY_MAX_HELD 10
 
-// increase this if you need more keys in the board
-#define ZMK_BHV_STICKY_KEY_POSITION_NOT_USED ULONG_MAX
+#define ZMK_BHV_STICKY_KEY_POSITION_FREE ULONG_MAX
 
 struct behavior_sticky_key_config {
     uint32_t release_after_ms;
@@ -40,9 +39,9 @@ struct active_sticky_key {
     const struct behavior_sticky_key_config *config;
     // timer data.
     bool timer_started;
+    bool timer_cancelled;
     int64_t release_at;
     struct k_delayed_work release_timer;
-    bool timer_is_cancelled;
     // usage page and keycode for the key that is being modified by this sticky key
     uint8_t modified_key_usage_page;
     uint32_t modified_key_keycode;
@@ -54,32 +53,32 @@ static struct active_sticky_key *store_sticky_key(uint32_t position, uint32_t pa
                                                   uint32_t param2,
                                                   const struct behavior_sticky_key_config *config) {
     for (int i = 0; i < ZMK_BHV_STICKY_KEY_MAX_HELD; i++) {
-        if (active_sticky_keys[i].position != ZMK_BHV_STICKY_KEY_POSITION_NOT_USED ||
-            active_sticky_keys[i].timer_is_cancelled) {
+        struct active_sticky_key *const sticky_key = &active_sticky_keys[i];
+        if (sticky_key->position != ZMK_BHV_STICKY_KEY_POSITION_FREE ||
+            sticky_key->timer_cancelled) {
             continue;
         }
-        active_sticky_keys[i].position = position;
-        active_sticky_keys[i].param1 = param1;
-        active_sticky_keys[i].param2 = param2;
-        active_sticky_keys[i].config = config;
-        active_sticky_keys[i].release_at = 0;
-        active_sticky_keys[i].timer_is_cancelled = false;
-        active_sticky_keys[i].timer_started = false;
-        active_sticky_keys[i].modified_key_usage_page = 0;
-        active_sticky_keys[i].modified_key_keycode = 0;
-        return &active_sticky_keys[i];
+        sticky_key->position = position;
+        sticky_key->param1 = param1;
+        sticky_key->param2 = param2;
+        sticky_key->config = config;
+        sticky_key->release_at = 0;
+        sticky_key->timer_cancelled = false;
+        sticky_key->timer_started = false;
+        sticky_key->modified_key_usage_page = 0;
+        sticky_key->modified_key_keycode = 0;
+        return sticky_key;
     }
     return NULL;
 }
 
 static void clear_sticky_key(struct active_sticky_key *sticky_key) {
-    sticky_key->position = ZMK_BHV_STICKY_KEY_POSITION_NOT_USED;
+    sticky_key->position = ZMK_BHV_STICKY_KEY_POSITION_FREE;
 }
 
 static struct active_sticky_key *find_sticky_key(uint32_t position) {
     for (int i = 0; i < ZMK_BHV_STICKY_KEY_MAX_HELD; i++) {
-        if (active_sticky_keys[i].position == position &&
-            !active_sticky_keys[i].timer_is_cancelled) {
+        if (active_sticky_keys[i].position == position && !active_sticky_keys[i].timer_cancelled) {
             return &active_sticky_keys[i];
         }
     }
@@ -120,7 +119,7 @@ static int stop_timer(struct active_sticky_key *sticky_key) {
     int timer_cancel_result = k_delayed_work_cancel(&sticky_key->release_timer);
     if (timer_cancel_result == -EINPROGRESS) {
         // too late to cancel, we'll let the timer handler clear up.
-        sticky_key->timer_is_cancelled = true;
+        sticky_key->timer_cancelled = true;
     }
     return timer_cancel_result;
 }
@@ -183,7 +182,7 @@ static int sticky_key_keycode_state_changed_listener(const struct zmk_event_head
     struct keycode_state_changed *ev = cast_keycode_state_changed(eh);
     for (int i = 0; i < ZMK_BHV_STICKY_KEY_MAX_HELD; i++) {
         struct active_sticky_key *sticky_key = &active_sticky_keys[i];
-        if (sticky_key->position == ZMK_BHV_STICKY_KEY_POSITION_NOT_USED) {
+        if (sticky_key->position == ZMK_BHV_STICKY_KEY_POSITION_FREE) {
             continue;
         }
 
@@ -232,11 +231,11 @@ ZMK_SUBSCRIPTION(behavior_sticky_key, keycode_state_changed);
 void behavior_sticky_key_timer_handler(struct k_work *item) {
     struct active_sticky_key *sticky_key =
         CONTAINER_OF(item, struct active_sticky_key, release_timer);
-    if (sticky_key->position == ZMK_BHV_STICKY_KEY_POSITION_NOT_USED) {
+    if (sticky_key->position == ZMK_BHV_STICKY_KEY_POSITION_FREE) {
         return;
     }
-    if (sticky_key->timer_is_cancelled) {
-        sticky_key->timer_is_cancelled = false;
+    if (sticky_key->timer_cancelled) {
+        sticky_key->timer_cancelled = false;
     } else {
         release_sticky_key_behavior(sticky_key, sticky_key->release_at);
     }
@@ -248,7 +247,7 @@ static int behavior_sticky_key_init(const struct device *dev) {
         for (int i = 0; i < ZMK_BHV_STICKY_KEY_MAX_HELD; i++) {
             k_delayed_work_init(&active_sticky_keys[i].release_timer,
                                 behavior_sticky_key_timer_handler);
-            active_sticky_keys[i].position = ZMK_BHV_STICKY_KEY_POSITION_NOT_USED;
+            active_sticky_keys[i].position = ZMK_BHV_STICKY_KEY_POSITION_FREE;
         }
     }
     init_first_run = false;

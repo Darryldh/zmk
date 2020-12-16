@@ -1,6 +1,7 @@
 {
   "files.associations": {
     "*.overlay": "dts",
-    "*.keymap": "dts"
+    "*.keymap": "dts",
+    "device.h": "c"
   }
 }
