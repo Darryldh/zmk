@@ -80,7 +80,7 @@ static void zmk_battery_update(const struct device *battery) {
         } else {
             /* append this value to the event */
             ev->voltage_sv = voltage;
-            //LOG_DBG("-----> battery voltage: %d.%dV", voltage.val1, voltage.val2);
+            LOG_DBG("-----> battery voltage: %d.%dV", voltage.val1, voltage.val2);
         }
         
 
