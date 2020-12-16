@@ -19,8 +19,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #if ZMK_KEYMAP_HAS_SENSORS
 
 struct sensors_data_item {
-    u8_t sensor_number;
-    struct device *dev;
+    uint8_t sensor_number;
+    const struct device *dev;
     struct sensor_trigger trigger;
 };
 
@@ -32,7 +32,7 @@ struct sensors_data_item {
 
 static struct sensors_data_item sensors[] = {UTIL_LISTIFY(ZMK_KEYMAP_SENSORS_LEN, SENSOR_ITEM, 0)};
 
-static void zmk_sensors_trigger_handler(struct device *dev, struct sensor_trigger *trigger) {
+static void zmk_sensors_trigger_handler(const struct device *dev, struct sensor_trigger *trigger) {
     int err;
     struct sensors_data_item *item = CONTAINER_OF(trigger, struct sensors_data_item, trigger);
     struct sensor_event *event;
@@ -53,7 +53,7 @@ static void zmk_sensors_trigger_handler(struct device *dev, struct sensor_trigge
     ZMK_EVENT_RAISE(event);
 }
 
-static void zmk_sensors_init_item(const char *node, u8_t i, u8_t abs_i) {
+static void zmk_sensors_init_item(const char *node, uint8_t i, uint8_t abs_i) {
     LOG_DBG("Init %s at index %d with sensor_number %d", node, i, abs_i);
 
     sensors[i].dev = device_get_binding(node);
@@ -72,7 +72,7 @@ static void zmk_sensors_init_item(const char *node, u8_t i, u8_t abs_i) {
     COND_CODE_1(DT_NODE_HAS_STATUS(ZMK_KEYMAP_SENSORS_BY_IDX(idx), okay),                          \
                 (_SENSOR_INIT(ZMK_KEYMAP_SENSORS_BY_IDX(idx))), (absolute_index++;))
 
-static int zmk_sensors_init(struct device *_arg) {
+static int zmk_sensors_init(const struct device *_arg) {
     int local_index = 0;
     int absolute_index = 0;
 

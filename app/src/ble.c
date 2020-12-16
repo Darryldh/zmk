@@ -36,8 +36,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/events/ble-active-profile-changed.h>
 
 static struct bt_conn *auth_passkey_entry_conn;
-static u8_t passkey_entries[6] = {0, 0, 0, 0, 0, 0};
-static u8_t passkey_digit = 0;
+static uint8_t passkey_entries[6] = {0, 0, 0, 0, 0, 0};
+static uint8_t passkey_digit = 0;
 
 #if IS_ENABLED(CONFIG_ZMK_SPLIT_BLE_ROLE_CENTRAL)
 #define PROFILE_COUNT (CONFIG_BT_MAX_PAIRED - 1)
@@ -58,7 +58,7 @@ enum advertising_type {
                     BT_GAP_ADV_FAST_INT_MAX_2, NULL)
 
 static struct zmk_ble_profile profiles[PROFILE_COUNT];
-static u8_t active_profile;
+static uint8_t active_profile;
 
 #define DEVICE_NAME CONFIG_BT_DEVICE_NAME
 #define DEVICE_NAME_LEN (sizeof(DEVICE_NAME) - 1)
@@ -104,7 +104,7 @@ bool zmk_ble_active_profile_is_open() {
     return !bt_addr_le_cmp(&profiles[active_profile].peer, BT_ADDR_LE_ANY);
 }
 
-void set_profile_address(u8_t index, const bt_addr_le_t *addr) {
+void set_profile_address(uint8_t index, const bt_addr_le_t *addr) {
     char setting_name[15];
     char addr_str[BT_ADDR_LE_STR_LEN];
 
@@ -114,7 +114,7 @@ void set_profile_address(u8_t index, const bt_addr_le_t *addr) {
     sprintf(setting_name, "ble/profiles/%d", index);
     LOG_DBG("Setting profile addr for %s to %s", log_strdup(setting_name), log_strdup(addr_str));
     settings_save_one(setting_name, &profiles[index], sizeof(struct zmk_ble_profile));
-    raise_profile_changed_event();
+    k_work_submit(&raise_profile_changed_event_work);
 }
 
 bool zmk_ble_active_profile_is_connected() {
@@ -228,14 +228,31 @@ int zmk_ble_clear_bonds() {
 
 int zmk_ble_active_profile_index() { return active_profile; }
 
-int zmk_ble_prof_select(u8_t index) {
+#if IS_ENABLED(CONFIG_SETTINGS)
+static void ble_save_profile_work(struct k_work *work) {
+    settings_save_one("ble/active_profile", &active_profile, sizeof(active_profile));
+}
+
+static struct k_delayed_work ble_save_work;
+#endif
+
+static int ble_save_profile() {
+#if IS_ENABLED(CONFIG_SETTINGS)
+    k_delayed_work_cancel(&ble_save_work);
+    return k_delayed_work_submit(&ble_save_work, K_MSEC(CONFIG_ZMK_SETTINGS_SAVE_DEBOUNCE));
+#else
+    return 0;
+#endif
+}
+
+int zmk_ble_prof_select(uint8_t index) {
     LOG_DBG("profile %d", index);
     if (active_profile == index) {
         return 0;
     }
 
     active_profile = index;
-    settings_save_one("ble/active_profile", &active_profile, sizeof(active_profile));
+    ble_save_profile();
 
     update_advertising();
 
@@ -277,7 +294,7 @@ static int ble_profiles_handle_set(const char *name, size_t len, settings_read_c
 
     if (settings_name_steq(name, "profiles", &next) && next) {
         char *endptr;
-        u8_t idx = strtoul(next, &endptr, 10);
+        uint8_t idx = strtoul(next, &endptr, 10);
         if (*endptr != '\0') {
             LOG_WRN("Invalid profile index: %s", log_strdup(next));
             return -EINVAL;
@@ -339,9 +356,10 @@ static bool is_conn_active_profile(const struct bt_conn *conn) {
     return bt_addr_le_cmp(bt_conn_get_dst(conn), &profiles[active_profile].peer) == 0;
 }
 
-static void connected(struct bt_conn *conn, u8_t err) {
+static void connected(struct bt_conn *conn, uint8_t err) {
     char addr[BT_ADDR_LE_STR_LEN];
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
+    LOG_DBG("Connected thread: %p", k_current_get());
 
     advertising_status = ZMK_ADV_NONE;
 
@@ -367,11 +385,11 @@ static void connected(struct bt_conn *conn, u8_t err) {
 
     if (is_conn_active_profile(conn)) {
         LOG_DBG("Active profile connected");
-        raise_profile_changed_event();
+        k_work_submit(&raise_profile_changed_event_work);
     }
 }
 
-static void disconnected(struct bt_conn *conn, u8_t reason) {
+static void disconnected(struct bt_conn *conn, uint8_t reason) {
     char addr[BT_ADDR_LE_STR_LEN];
 
     bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
@@ -508,7 +526,7 @@ static void zmk_ble_ready(int err) {
     update_advertising();
 }
 
-static int zmk_ble_init(struct device *_arg) {
+static int zmk_ble_init(const struct device *_arg) {
     int err = bt_enable(NULL);
 
     if (err) {
@@ -525,7 +543,10 @@ static int zmk_ble_init(struct device *_arg) {
         return err;
     }
 
-    settings_load();
+    k_delayed_work_init(&ble_save_work, ble_save_profile_work);
+
+    settings_load_subtree("ble");
+    settings_load_subtree("bt");
 
 #endif
 
@@ -580,12 +601,12 @@ bool zmk_ble_handle_key_user(struct zmk_key_event *key_event) {
         return true;
     }
 
-    u32_t val = (key == NUMBER_0) ? 0 : (key - NUMBER_1 + 1);
+    uint32_t val = (key == NUMBER_0) ? 0 : (key - NUMBER_1 + 1);
 
     passkey_entries[passkey_digit++] = val;
 
     if (passkey_digit == 6) {
-        u32_t passkey = 0;
+        uint32_t passkey = 0;
         for (int i = 5; i >= 0; i--) {
             passkey = (passkey * 10) + val;
         }

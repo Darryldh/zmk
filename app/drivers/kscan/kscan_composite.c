@@ -17,8 +17,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 struct kscan_composite_child_config {
     char *label;
-    u8_t row_offset;
-    u8_t column_offset;
+    uint8_t row_offset;
+    uint8_t column_offset;
 };
 
 #define CHILD_CONFIG(inst)                                                                         \
@@ -34,10 +34,10 @@ struct kscan_composite_config {};
 struct kscan_composite_data {
     kscan_callback_t callback;
 
-    struct device *dev;
+    const struct device *dev;
 };
 
-static int kscan_composite_enable_callback(struct device *dev) {
+static int kscan_composite_enable_callback(const struct device *dev) {
     for (int i = 0; i < ARRAY_SIZE(kscan_composite_children); i++) {
         const struct kscan_composite_child_config *cfg = &kscan_composite_children[i];
 
@@ -46,7 +46,7 @@ static int kscan_composite_enable_callback(struct device *dev) {
     return 0;
 }
 
-static int kscan_composite_disable_callback(struct device *dev) {
+static int kscan_composite_disable_callback(const struct device *dev) {
     for (int i = 0; i < ARRAY_SIZE(kscan_composite_children); i++) {
         const struct kscan_composite_child_config *cfg = &kscan_composite_children[i];
 
@@ -55,11 +55,11 @@ static int kscan_composite_disable_callback(struct device *dev) {
     return 0;
 }
 
-static void kscan_composite_child_callback(struct device *child_dev, u32_t row, u32_t column,
-                                           bool pressed) {
+static void kscan_composite_child_callback(const struct device *child_dev, uint32_t row,
+                                           uint32_t column, bool pressed) {
     // TODO: Ideally we can get this passed into our callback!
-    struct device *dev = device_get_binding(DT_INST_LABEL(0));
-    struct kscan_composite_data *data = dev->driver_data;
+    const struct device *dev = device_get_binding(DT_INST_LABEL(0));
+    struct kscan_composite_data *data = dev->data;
 
     for (int i = 0; i < ARRAY_SIZE(kscan_composite_children); i++) {
         const struct kscan_composite_child_config *cfg = &kscan_composite_children[i];
@@ -72,8 +72,8 @@ static void kscan_composite_child_callback(struct device *child_dev, u32_t row, 
     }
 }
 
-static int kscan_composite_configure(struct device *dev, kscan_callback_t callback) {
-    struct kscan_composite_data *data = dev->driver_data;
+static int kscan_composite_configure(const struct device *dev, kscan_callback_t callback) {
+    struct kscan_composite_data *data = dev->data;
 
     if (!callback) {
         return -EINVAL;
@@ -90,8 +90,8 @@ static int kscan_composite_configure(struct device *dev, kscan_callback_t callba
     return 0;
 }
 
-static int kscan_composite_init(struct device *dev) {
-    struct kscan_composite_data *data = dev->driver_data;
+static int kscan_composite_init(const struct device *dev) {
+    struct kscan_composite_data *data = dev->data;
 
     data->dev = dev;
 

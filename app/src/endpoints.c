@@ -29,6 +29,23 @@ static enum zmk_endpoint preferred_endpoint =
 
 static void update_current_endpoint();
 
+#if IS_ENABLED(CONFIG_SETTINGS)
+static void endpoints_save_preferred_work(struct k_work *work) {
+    settings_save_one("endpoints/preferred", &preferred_endpoint, sizeof(preferred_endpoint));
+}
+
+static struct k_delayed_work endpoints_save_work;
+#endif
+
+static int endpoints_save_preferred() {
+#if IS_ENABLED(CONFIG_SETTINGS)
+    k_delayed_work_cancel(&endpoints_save_work);
+    return k_delayed_work_submit(&endpoints_save_work, K_MSEC(CONFIG_ZMK_SETTINGS_SAVE_DEBOUNCE));
+#else
+    return 0;
+#endif
+}
+
 int zmk_endpoints_select(enum zmk_endpoint endpoint) {
     LOG_DBG("Selected endpoint %d", endpoint);
 
@@ -38,9 +55,7 @@ int zmk_endpoints_select(enum zmk_endpoint endpoint) {
 
     preferred_endpoint = endpoint;
 
-#if IS_ENABLED(CONFIG_SETTINGS)
-    settings_save_one("endpoints/preferred", &preferred_endpoint, sizeof(preferred_endpoint));
-#endif
+    endpoints_save_preferred();
 
     update_current_endpoint();
 
@@ -61,7 +76,7 @@ static int send_keyboard_report() {
     switch (current_endpoint) {
 #if IS_ENABLED(CONFIG_ZMK_USB)
     case ZMK_ENDPOINT_USB: {
-        int err = zmk_usb_hid_send_report((u8_t *)keyboard_report, sizeof(*keyboard_report));
+        int err = zmk_usb_hid_send_report((uint8_t *)keyboard_report, sizeof(*keyboard_report));
         if (err) {
             LOG_ERR("FAILED TO SEND OVER USB: %d", err);
         }
@@ -91,7 +106,7 @@ static int send_consumer_report() {
     switch (current_endpoint) {
 #if IS_ENABLED(CONFIG_ZMK_USB)
     case ZMK_ENDPOINT_USB: {
-        int err = zmk_usb_hid_send_report((u8_t *)consumer_report, sizeof(*consumer_report));
+        int err = zmk_usb_hid_send_report((uint8_t *)consumer_report, sizeof(*consumer_report));
         if (err) {
             LOG_ERR("FAILED TO SEND OVER USB: %d", err);
         }
@@ -115,7 +130,7 @@ static int send_consumer_report() {
     }
 }
 
-int zmk_endpoints_send_report(u8_t usage_page) {
+int zmk_endpoints_send_report(uint8_t usage_page) {
 
     LOG_DBG("usage page 0x%02X", usage_page);
     switch (usage_page) {
@@ -156,7 +171,7 @@ static int endpoints_handle_set(const char *name, size_t len, settings_read_cb r
 struct settings_handler endpoints_handler = {.name = "endpoints", .h_set = endpoints_handle_set};
 #endif /* IS_ENABLED(CONFIG_SETTINGS) */
 
-static int zmk_endpoints_init(struct device *_arg) {
+static int zmk_endpoints_init(const struct device *_arg) {
 #if IS_ENABLED(CONFIG_SETTINGS)
     settings_subsys_init();
 
@@ -166,7 +181,9 @@ static int zmk_endpoints_init(struct device *_arg) {
         return err;
     }
 
-    settings_load();
+    k_delayed_work_init(&endpoints_save_work, endpoints_save_preferred_work);
+
+    settings_load_subtree("endpoints");
 #endif
 
     return 0;
