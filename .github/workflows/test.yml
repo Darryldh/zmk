@@ -18,8 +18,6 @@ jobs:
     container:
       image: zmkfirmware/zmk-build-arm:2.4
     steps:
-      # To use this repository's private action,
-      # you must check out the repository
       - name: Checkout
         uses: actions/checkout@v2
       - name: Cache west modules
@@ -43,8 +41,6 @@ jobs:
         run: west init -l app
       - name: West update
         run: west update
-      - name: West config Zephyr base
-        run: west config --global zephyr.base-prefer configfile
       - name: West Zephyr export
         run: west zephyr-export
       - name: Test all
