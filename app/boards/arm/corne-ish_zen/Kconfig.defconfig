@@ -31,9 +31,9 @@ config I2C
 menuconfig SENSOR
     bool "Sensor Drivers"
 
-#onfig MAX17055
-#    bool "MAX17055 Fuel Gauge"
-#    depends on I2C && SENSOR
+config MAX17055
+    bool "MAX17055 Fuel Gauge"
+    depends on I2C && SENSOR
 
 #config SPI
 #    bool
@@ -47,9 +47,6 @@ config ZMK_BLE
 
 config ZMK_USB
 	default y
-
-#onfig ZMK_BATTERY_VOLTAGE_DIVIDER  # is this correct?
-#	default n
 
 if USB
 
@@ -66,17 +63,17 @@ if ZMK_DISPLAY
 config SPI
 	default y
 
-config IL0323
-	default y
+#config IL0323
+#	default y
 
 endif # ZMK_DISPLAY
 
 if LVGL
 
-config LVGL_HOR_RES
+config LVGL_HOR_RES_MAX
 	default 80
 
-config LVGL_VER_RES
+config LVGL_VER_RES_MAX
 	default 128
 
 config LVGL_VDB_SIZE

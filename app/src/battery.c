@@ -79,7 +79,7 @@ static void zmk_battery_update(const struct device *battery) {
             LOG_DBG("The battery sensor does not support the channel: Voltage");
         } else {
             /* append this value to the event */
-            ev->voltage_sv = voltage;
+            ev->voltage = voltage;
             LOG_DBG("-----> battery voltage: %d.%dV", voltage.val1, voltage.val2);
         }
         
@@ -337,7 +337,7 @@ static void zmk_battery_update(const struct device *battery) {
 
 
 static int zmk_battery_init(const struct device *_arg) {
-
+    LOG_DBG("--- initialization ---");
     battery = device_get_binding("BATTERY");
 
     if (!battery) {
