@@ -65,7 +65,7 @@
 	mosi-pin = <25>;
 	miso-pin = <24>;
 	cs-gpios = <&gpio1  8 GPIO_ACTIVE_LOW>;
-
+/*
 	epd: il0323@0 {
 		compatible = "gooddisplay,il0323";
 		reg =  <0>;
@@ -81,6 +81,7 @@
 		cdi = <0xd2>;
 		tcon = <0x22>;
 	};
+	*/
 };
 
 
