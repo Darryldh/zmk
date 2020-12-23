@@ -52,9 +52,10 @@
 		label = "BATTERY";
 		reg = <0x36>;
 		design-voltage = <3700>;
-		desired-voltage = <4100>;
-		desired-charging-current = <180>;
+		desired-voltage = <4200>;
+		desired-charging-current = <150>;
 		rsense-mohms = <10>;
+		design-capacity = <150>;
 	};
 };
 
