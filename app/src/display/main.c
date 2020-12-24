@@ -50,7 +50,7 @@ static void stop_display_updates() {
 }
 
 int zmk_display_init() {
-    LOG_DBG("");
+    LOG_DBG("-->");
 
     display = device_get_binding(ZMK_DISPLAY_NAME);
     if (display == NULL) {

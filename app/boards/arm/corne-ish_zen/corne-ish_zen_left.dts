@@ -46,15 +46,18 @@
 	scl-pin = <26>;
 	clock-frequency = <100000>; 
 
-	fuelgauge: max17055@49 {
+	fuelgauge:max17055@36 {
+		status = "ok";
 		compatible = "maxim,max17055";
-		label = "max17055";
-		reg = <0x49>;
-		design-voltage = <3860>;
-		desired-voltage = <4400>;
-		desired-charging-current = <2000>;
+		//label = "max17055";
+		label = "BATTERY";
+		reg = <0x36>;
+		design-voltage = <3700>;
+		desired-voltage = <4100>;
+		desired-charging-current = <180>;
 		rsense-mohms = <10>;
 	};
+
 };
 
 &spi1  {
@@ -64,7 +67,7 @@
 	mosi-pin = <25>;
 	miso-pin = <24>;
 	cs-gpios = <&gpio1  8 GPIO_ACTIVE_LOW>;
-
+/*
 	epd: il0323@0 {
 		compatible = "gooddisplay,il0323";
 		reg =  <0>;
@@ -79,10 +82,10 @@
 		softstart = [17 17 17 17];
 		cdi = <0xd2>;
 		tcon = <0x22>;
-	};
+	}; */
 };
 
 
-&bt_unpair_combo {
-	key-positions = <0 38>;
-};
+//&bt_unpair_combo {
+//	key-positions = <0 38>;
+//};
