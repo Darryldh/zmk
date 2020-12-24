@@ -55,7 +55,6 @@
 		desired-voltage = <4200>;
 		desired-charging-current = <150>;
 		rsense-mohms = <10>;
-		design-capacity = <150>;
 	};
 };
 
