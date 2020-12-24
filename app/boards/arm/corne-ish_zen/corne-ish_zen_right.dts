@@ -48,17 +48,28 @@
 	};
 
 &i2c0 {
-		status = "ok";
-		compatible = "nordic,nrf-twim";
-		sda-pin = <16>;
-		scl-pin = <13>;
-		clock-frequency = <100000>; 
-	};
+	status = "ok";
+	compatible = "nordic,nrf-twim";
+	sda-pin = <16>;
+	scl-pin = <13>;
+	clock-frequency = <100000>; 
 
-&spi0 {
+	fuelgauge: max17055@36 {
+		status = "ok";
+		compatible = "maxim,max17055";
+		label = "BATTERY";
+		reg = <0x36>;
+		design-voltage = <3700>;
+		desired-voltage = <4200>;
+		desired-charging-current = <150>;
+		rsense-mohms = <10>;
+	};
+};
+
+&spi1 {
 	status = "okay";
 	cs-gpios = <&gpio1 2 GPIO_ACTIVE_LOW>;
-
+/*
 	epd: il0323@0 {
 		compatible = "gooddisplay,il0323";
 		reg =  <0>;
@@ -74,6 +85,7 @@
 		cdi = <0xd2>;
 		tcon = <0x22>;
 	};
+	*/
 };
 
 /*
