@@ -61,11 +61,11 @@
 &spi1  {
 	status = "okay";
 	compatible = "nordic,nrf-spim";
-	sck-pin = <11>;
-	mosi-pin = <25>;
-	miso-pin = <24>;
+	sck-pin = <27>;
+	mosi-pin = <8>;
+	miso-pin = <22>;
 	cs-gpios = <&gpio1  8 GPIO_ACTIVE_LOW>;
-/*
+
 	epd: il0323@0 {
 		compatible = "gooddisplay,il0323";
 		reg =  <0>;
@@ -73,15 +73,14 @@
 		width = <80>;
 		height = <128>;
 		spi-max-frequency = <250000>;
-		dc-gpios = <&gpio0 27 GPIO_ACTIVE_HIGH>;
-		busy-gpios = <&gpio0  8 GPIO_ACTIVE_LOW>;
-		reset-gpios = <&gpio0 18 GPIO_ACTIVE_HIGH>;
+		dc-gpios = <&gpio0 11 GPIO_ACTIVE_LOW>;
+		busy-gpios = <&gpio0 25 GPIO_ACTIVE_LOW>;
+		reset-gpios = <&gpio0 18 GPIO_ACTIVE_LOW>;
 		pwr = [03 00 26 26];
-		softstart = [17 17 17 17];
+		//softstart = [17 17 17 17];
 		cdi = <0xd2>;
 		tcon = <0x22>;
 	};
-	*/
 };
 
 /* 

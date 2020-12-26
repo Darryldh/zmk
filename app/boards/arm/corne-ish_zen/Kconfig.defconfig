@@ -35,9 +35,9 @@ config MAX17055
     bool "MAX17055 Fuel Gauge"
     depends on I2C && SENSOR
 
-#config SPI
-#    bool
-#    default y
+config SPI
+    bool
+    default y
 
 config BT_CTLR
 	default BT
@@ -63,8 +63,8 @@ if ZMK_DISPLAY
 config SPI
 	default y
 
-#config IL0323
-#	default y
+config IL0323
+	default y
 
 endif # ZMK_DISPLAY
 
