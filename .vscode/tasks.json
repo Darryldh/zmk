@@ -12,6 +12,13 @@
         "isDefault": true
       }
     },
+    "problemMatcher": [
+      {
+        "base": "$gcc",
+        "fileLocation": ["autoDetect", "${workspaceFolder}/app/build"]
+      }
+    ]
+  },
     {
       "label": "Flash",
       "type": "shell",

@@ -58,7 +58,7 @@
 	};
 };
 
-&spi1  {
+&spi2  {
 	status = "okay";
 	compatible = "nordic,nrf-spim";
 	sck-pin = <27>;
@@ -72,7 +72,7 @@
 		label = "DISPLAY";
 		width = <80>;
 		height = <128>;
-		spi-max-frequency = <250000>;
+		spi-max-frequency = <4000000>;
 		dc-gpios = <&gpio0 11 GPIO_ACTIVE_LOW>;
 		busy-gpios = <&gpio0 25 GPIO_ACTIVE_LOW>;
 		reset-gpios = <&gpio0 18 GPIO_ACTIVE_LOW>;
