@@ -11,7 +11,7 @@ endif # BOARD_CORNEISH_ZEN_LEFT
 if BOARD_CORNEISH_ZEN_RIGHT
 
 	config ZMK_KEYBOARD_NAME
-	default "Corne-ish Zen (right)"
+	default "Corne-ish Zen rt"
 
 endif # BOARD_CORNEISH_ZEN_RIGHT
 
@@ -68,28 +68,28 @@ config IL0323
 
 endif # ZMK_DISPLAY
 
-if LVGL
+# if LVGL
 
-config LVGL_HOR_RES_MAX
-	default 80
+# config LVGL_HOR_RES_MAX
+# 	default 80
 
-config LVGL_VER_RES_MAX
-	default 128
+# config LVGL_VER_RES_MAX
+# 	default 128
 
-config LVGL_VDB_SIZE
-	default 100
+# config LVGL_VDB_SIZE
+# 	default 100
 
-config LVGL_DPI
-	default 145
+# config LVGL_DPI
+#	default 145
 
-config LVGL_BITS_PER_PIXEL
-	default 1
+# config LVGL_BITS_PER_PIXEL
+#	default 1
 
-choice LVGL_COLOR_DEPTH
-	default LVGL_COLOR_DEPTH_1
-endchoice
+# choice LVGL_COLOR_DEPTH
+#	default LVGL_COLOR_DEPTH_1
+# endchoice
 
-endif # LVGL
+# endif # LVGL
 
 endif # BOARD_CORNEISH_ZEN_LEFT || BOARD_CORNEISH_ZEN_RIGHT
 

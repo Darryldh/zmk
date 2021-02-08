@@ -7,14 +7,13 @@
 #pragma once
 
 #include <zephyr.h>
-#include <zmk/event-manager.h>
+#include <zmk/event_manager.h>
 #include <drivers/sensor.h>
 
-struct battery_state_changed {
+struct zmk_battery_state_changed {
 
-    struct zmk_event_header header;
 
-    /* Current cell voltage in units of 1.25/16mV */
+    /*  Current cell voltage in units of 1.25/16mV */
     struct sensor_value voltage;
 
     /* Average current in units of 1.5625uV / Rsense */

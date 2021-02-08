@@ -2,7 +2,11 @@
   "files.associations": {
     "*.overlay": "dts",
     "*.keymap": "dts",
-    "device.h": "c"
+    "device.h": "c",
+    "event_manager.h": "c",
+    "array": "c",
+    "string": "c",
+    "string_view": "c"
   },
   "[c]": {
     "editor.formatOnSave": true
